@@ -1,0 +1,14 @@
+[package]
+name = "hello_world_program"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+arch-program = "0.1.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[[bin]]
+name = "hello_world_program"
+path = "src/main.rs" 
