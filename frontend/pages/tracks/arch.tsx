@@ -1,116 +1,23 @@
 import Link from "next/link";
-import { ArrowLeft, Play, CheckCircle, Lock, Code2 } from "lucide-react";
-
-interface ArchLesson {
-  id: number;
-  title: string;
-  description: string;
-  difficulty: "Beginner" | "Intermediate" | "Advanced";
-  duration: string;
-  href: string;
-  isCompleted: boolean;
-  isUnlocked: boolean;
-}
-
-const archLessons: ArchLesson[] = [
-  {
-    id: 1,
-    title: "Hello World",
-    description:
-      "Learn the basics of Arch programming with your first program. Understand the fundamental structure and entry points.",
-    difficulty: "Beginner",
-    duration: "15 min",
-    href: "/tracks/arch/lesson1",
-    isCompleted: false,
-    isUnlocked: true,
-  },
-  {
-    id: 2,
-    title: "Variables & Data Types",
-    description:
-      "Master Arch data types, variable declarations, and memory management in blockchain programs.",
-    difficulty: "Beginner",
-    duration: "20 min",
-    href: "/tracks/arch/lesson2",
-    isCompleted: false,
-    isUnlocked: false,
-  },
-  {
-    id: 3,
-    title: "Account Management",
-    description:
-      "Learn to work with accounts, read account data, and manage state in your Arch programs.",
-    difficulty: "Beginner",
-    duration: "25 min",
-    href: "/tracks/arch/lesson3",
-    isCompleted: false,
-    isUnlocked: false,
-  },
-  {
-    id: 4,
-    title: "Instruction Processing",
-    description:
-      "Deep dive into instruction data processing, serialization, and program logic flow.",
-    difficulty: "Intermediate",
-    duration: "30 min",
-    href: "/tracks/arch/lesson4",
-    isCompleted: false,
-    isUnlocked: false,
-  },
-  {
-    id: 5,
-    title: "Program Derived Addresses",
-    description:
-      "Master PDAs, cross-program invocations, and advanced account management techniques.",
-    difficulty: "Intermediate",
-    duration: "35 min",
-    href: "/tracks/arch/lesson5",
-    isCompleted: false,
-    isUnlocked: false,
-  },
-  {
-    id: 6,
-    title: "Token Operations",
-    description:
-      "Learn to create, mint, and transfer tokens using Arch's token program interfaces.",
-    difficulty: "Intermediate",
-    duration: "40 min",
-    href: "/tracks/arch/lesson6",
-    isCompleted: false,
-    isUnlocked: false,
-  },
-  {
-    id: 7,
-    title: "Smart Contract Interactions",
-    description:
-      "Build complex smart contracts that interact with other programs and external data.",
-    difficulty: "Advanced",
-    duration: "45 min",
-    href: "/tracks/arch/lesson7",
-    isCompleted: false,
-    isUnlocked: false,
-  },
-  {
-    id: 8,
-    title: "DeFi Protocol Development",
-    description:
-      "Create a complete DeFi protocol with swaps, liquidity pools, and yield farming mechanics.",
-    difficulty: "Advanced",
-    duration: "60 min",
-    href: "/tracks/arch/lesson8",
-    isCompleted: false,
-    isUnlocked: false,
-  },
-];
+import {
+  ArrowLeft,
+  Play,
+  CheckCircle,
+  Lock,
+  Code2,
+  Target,
+  BookOpen,
+} from "lucide-react";
+import { archLessonsData } from "../../utils/archLessonsData";
 
 export default function ArchTrack() {
-  const completedLessons = archLessons.filter(
+  const completedLessons = archLessonsData.filter(
     (lesson) => lesson.isCompleted
   ).length;
-  const unlockedLessons = archLessons.filter(
+  const unlockedLessons = archLessonsData.filter(
     (lesson) => lesson.isUnlocked
   ).length;
-  const progressPercentage = (completedLessons / archLessons.length) * 100;
+  const progressPercentage = (completedLessons / archLessonsData.length) * 100;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
@@ -130,8 +37,19 @@ export default function ArchTrack() {
                   Arch Network Track
                 </h1>
                 <p className="text-gray-400">
-                  Master decentralized application development
+                  Master decentralized application development with hands-on
+                  examples
                 </p>
+                <div className="flex items-center gap-2 mt-1">
+                  <a
+                    href="https://github.com/Arch-Network/arch-examples"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-blue-400 hover:text-blue-300 transition-colors"
+                  >
+                    📚 Based on official Arch examples
+                  </a>
+                </div>
               </div>
             </div>
           </div>
@@ -139,7 +57,7 @@ export default function ArchTrack() {
           <div className="text-right">
             <div className="text-sm text-gray-400">Progress</div>
             <div className="text-xl font-bold text-bitcoin-500">
-              {completedLessons}/{archLessons.length} lessons
+              {completedLessons}/{archLessonsData.length} lessons
             </div>
           </div>
         </div>
@@ -161,7 +79,7 @@ export default function ArchTrack() {
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-500 mb-1">
-                {archLessons.length - unlockedLessons}
+                {archLessonsData.length - unlockedLessons}
               </div>
               <div className="text-sm text-gray-400">Locked</div>
             </div>
@@ -184,8 +102,8 @@ export default function ArchTrack() {
 
         {/* Lessons Grid */}
         <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-6">
-            {archLessons.map((lesson) => {
+          <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-6">
+            {archLessonsData.map((lesson) => {
               const LessonWrapper = ({
                 children,
               }: {
@@ -208,7 +126,7 @@ export default function ArchTrack() {
                       relative p-6 rounded-xl border-2 transition-all duration-300
                       ${
                         lesson.isUnlocked
-                          ? "border-gray-700 hover:border-bitcoin-500 hover:shadow-lg hover:shadow-bitcoin-500/20 cursor-pointer group-hover:scale-[1.02]"
+                          ? "border-gray-700 hover:border-bitcoin-500 hover:shadow-lg hover:shadow-bitcoin-500/20 cursor-pointer group-hover:scale-[1.01]"
                           : "border-gray-800 opacity-60"
                       }
                       bg-gradient-to-br from-gray-900 to-gray-800
@@ -229,7 +147,7 @@ export default function ArchTrack() {
                     {/* Lesson Header */}
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-bitcoin-500 flex items-center justify-center text-white font-bold text-sm">
+                        <div className="w-10 h-10 rounded-full bg-bitcoin-500 flex items-center justify-center text-white font-bold text-sm">
                           {lesson.id}
                         </div>
                         <div>
@@ -251,6 +169,11 @@ export default function ArchTrack() {
                             <span className="px-2 py-1 text-xs bg-gray-600 text-white rounded">
                               {lesson.duration}
                             </span>
+                            {lesson.exampleSource && (
+                              <span className="px-2 py-1 text-xs bg-blue-600 text-white rounded">
+                                Official Example
+                              </span>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -264,9 +187,64 @@ export default function ArchTrack() {
                     </div>
 
                     {/* Lesson Description */}
-                    <p className="text-gray-300 text-sm leading-relaxed">
+                    <p className="text-gray-300 text-sm leading-relaxed mb-4">
                       {lesson.description}
                     </p>
+
+                    {/* Learning Objectives */}
+                    <div className="mb-4">
+                      <div className="flex items-center gap-1 mb-2">
+                        <Target className="h-4 w-4 text-bitcoin-400" />
+                        <span className="text-xs font-medium text-bitcoin-400">
+                          Learning Objectives
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-1 gap-1">
+                        {lesson.objectives
+                          .slice(0, 2)
+                          .map((objective, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center gap-2"
+                            >
+                              <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
+                              <span className="text-xs text-gray-400">
+                                {objective}
+                              </span>
+                            </div>
+                          ))}
+                        {lesson.objectives.length > 2 && (
+                          <span className="text-xs text-gray-500 ml-3">
+                            +{lesson.objectives.length - 2} more objectives
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Key Concepts */}
+                    <div className="mb-4">
+                      <div className="flex items-center gap-1 mb-2">
+                        <BookOpen className="h-4 w-4 text-purple-400" />
+                        <span className="text-xs font-medium text-purple-400">
+                          Key Concepts
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {lesson.concepts.slice(0, 4).map((concept, index) => (
+                          <span
+                            key={index}
+                            className="px-2 py-1 text-xs bg-gray-700 text-gray-300 rounded"
+                          >
+                            {concept}
+                          </span>
+                        ))}
+                        {lesson.concepts.length > 4 && (
+                          <span className="px-2 py-1 text-xs bg-gray-800 text-gray-500 rounded">
+                            +{lesson.concepts.length - 4}
+                          </span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </LessonWrapper>
               );
@@ -275,14 +253,15 @@ export default function ArchTrack() {
         </div>
 
         {/* Track Completion Message */}
-        {completedLessons === archLessons.length && (
+        {completedLessons === archLessonsData.length && (
           <div className="mt-12 text-center p-8 bg-gradient-to-r from-green-800 to-green-900 rounded-xl border border-green-700">
             <CheckCircle className="h-16 w-16 mx-auto mb-4 text-green-400" />
             <h2 className="text-2xl font-bold text-white mb-2">
               Congratulations!
             </h2>
             <p className="text-green-200 mb-4">
-              You've completed the Arch Network track!
+              You've completed the Arch Network track! You're now ready to build
+              sophisticated blockchain applications.
             </p>
             <Link
               href="/"
@@ -292,6 +271,48 @@ export default function ArchTrack() {
             </Link>
           </div>
         )}
+
+        {/* Additional Resources */}
+        <div className="mt-12 p-6 bg-gray-800 rounded-xl border border-gray-700">
+          <h3 className="text-xl font-semibold mb-4 text-center">
+            📚 Additional Learning Resources
+          </h3>
+          <div className="grid md:grid-cols-3 gap-4">
+            <a
+              href="https://github.com/Arch-Network/arch-examples"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-4 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors"
+            >
+              <h4 className="font-medium text-white mb-2">Arch Examples</h4>
+              <p className="text-sm text-gray-300">
+                Official examples and reference implementations
+              </p>
+            </a>
+            <a
+              href="https://github.com/Arch-Network/book"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-4 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors"
+            >
+              <h4 className="font-medium text-white mb-2">The Arch Book</h4>
+              <p className="text-sm text-gray-300">
+                Comprehensive documentation and guides
+              </p>
+            </a>
+            <a
+              href="https://github.com/Arch-Network/arch-cli"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-4 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors"
+            >
+              <h4 className="font-medium text-white mb-2">Arch CLI</h4>
+              <p className="text-sm text-gray-300">
+                Command-line tools for development
+              </p>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   );
