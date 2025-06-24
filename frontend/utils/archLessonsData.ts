@@ -334,25 +334,35 @@ use arch_program::account::next_account_info;`,
     id: 6,
     title: "Token Operations",
     description:
-      "Learn to create, mint, and transfer tokens using Arch's token program interfaces.",
+      "Master comprehensive token operations including minting, transfers, approvals, burning, and freezing. Build real DeFi primitives with hands-on interactive examples.",
     difficulty: "Intermediate",
-    duration: "40 min",
+    duration: "60 min",
     href: "/tracks/arch/lesson6",
     isCompleted: false,
     isUnlocked: false,
     objectives: [
-      "Understand token program architecture",
-      "Create token mints and accounts",
-      "Implement mint and transfer operations",
-      "Handle token program CPIs",
+      "Initialize token mints and create new token types",
+      "Create and manage token accounts (wallets)",
+      "Implement minting, transfers, and burning operations",
+      "Handle approval/delegate mechanisms for DeFi",
+      "Build freeze/thaw functionality for compliance",
+      "Create comprehensive test suites for token programs",
+      "Understand real-world token security patterns",
+      "Build DeFi building blocks and primitives",
     ],
     concepts: [
-      "token program",
-      "mint",
+      "token mints",
       "token accounts",
-      "transfers",
-      "authorities",
+      "mint authority",
+      "freeze authority",
+      "delegates",
+      "approvals",
+      "token burning",
+      "account freezing",
+      "overflow protection",
+      "DeFi primitives",
     ],
+    exampleSource: "https://github.com/Arch-Network/arch-examples",
     initialCode: `use arch_program::{
     account::AccountInfo,
     entrypoint,
@@ -361,60 +371,245 @@ use arch_program::account::next_account_info;`,
     program::invoke,
     program_error::ProgramError,
     pubkey::Pubkey,
+    system_instruction,
 };
+use borsh::{BorshDeserialize, BorshSerialize};
 
-// TODO: Import token program types
-// use spl_token::{instruction as token_instruction, state::Mint};
+// ============================================================================
+// TOKEN OPERATIONS LESSON - Interactive Examples
+// ============================================================================
+// This lesson demonstrates comprehensive token operations on Arch Network
+// Based on real-world examples from the Arch ecosystem
+// Students will learn: minting, transfers, approvals, burning, and more!
 
 entrypoint!(process_instruction);
+
+#[derive(BorshSerialize, BorshDeserialize, Debug)]
+pub enum TokenInstruction {
+    /// Initialize a new token mint
+    /// Accounts expected:
+    /// 0. \`[writable]\` The mint account to initialize
+    /// 1. \`[]\` The mint authority
+    /// 2. \`[]\` The freeze authority (optional)
+    InitializeMint { decimals: u8 },
+    
+    /// Initialize a new token account
+    /// Accounts expected:
+    /// 0. \`[writable]\` The token account to initialize
+    /// 1. \`[]\` The mint account
+    /// 2. \`[]\` The owner of the token account
+    InitializeAccount,
+    
+    /// Mint tokens to an account
+    /// Accounts expected:
+    /// 0. \`[writable]\` The mint account
+    /// 1. \`[writable]\` The destination token account
+    /// 2. \`[signer]\` The mint authority
+    MintTo { amount: u64 },
+    
+    /// Transfer tokens between accounts
+    /// Accounts expected:
+    /// 0. \`[writable]\` The source token account
+    /// 1. \`[writable]\` The destination token account
+    /// 2. \`[signer]\` The owner of the source account
+    Transfer { amount: u64 },
+    
+    /// Approve a delegate to spend tokens
+    /// Accounts expected:
+    /// 0. \`[writable]\` The token account to approve from
+    /// 1. \`[]\` The delegate account
+    /// 2. \`[signer]\` The owner of the token account
+    Approve { amount: u64 },
+    
+    /// Burn tokens from an account
+    /// Accounts expected:
+    /// 0. \`[writable]\` The token account to burn from
+    /// 1. \`[writable]\` The mint account
+    /// 2. \`[signer]\` The owner of the token account
+    Burn { amount: u64 },
+    
+    /// Freeze a token account
+    /// Accounts expected:
+    /// 0. \`[writable]\` The token account to freeze
+    /// 1. \`[]\` The mint account
+    /// 2. \`[signer]\` The freeze authority
+    FreezeAccount,
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Debug, Clone)]
+pub struct Mint {
+    pub mint_authority: Option<Pubkey>,
+    pub supply: u64,
+    pub decimals: u8,
+    pub is_initialized: bool,
+    pub freeze_authority: Option<Pubkey>,
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Debug, Clone)]
+pub struct TokenAccount {
+    pub mint: Pubkey,
+    pub owner: Pubkey,
+    pub amount: u64,
+    pub delegate: Option<Pubkey>,
+    pub state: AccountState,
+    pub delegated_amount: u64,
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Debug, Clone, PartialEq)]
+pub enum AccountState {
+    Uninitialized,
+    Initialized,
+    Frozen,
+}
 
 fn process_instruction(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
     instruction_data: &[u8],
 ) -> ProgramResult {
-    msg!("Token Operations Program");
+    let instruction = TokenInstruction::try_from_slice(instruction_data)?;
     
-    let accounts_iter = &mut accounts.iter();
-    let authority = next_account_info(accounts_iter)?;
-    let mint_account = next_account_info(accounts_iter)?;
-    let token_account = next_account_info(accounts_iter)?;
-    let token_program = next_account_info(accounts_iter)?;
+    match instruction {
+        TokenInstruction::InitializeMint { decimals } => {
+            msg!("Instruction: Initialize Mint");
+            // TODO: Implement mint initialization
+            process_initialize_mint(accounts, decimals)
+        }
+        TokenInstruction::InitializeAccount => {
+            msg!("Instruction: Initialize Token Account");
+            // TODO: Implement account initialization
+            process_initialize_account(accounts)
+        }
+        TokenInstruction::MintTo { amount } => {
+            msg!("Instruction: Mint To");
+            // TODO: Implement token minting
+            process_mint_to(accounts, amount)
+        }
+        TokenInstruction::Transfer { amount } => {
+            msg!("Instruction: Transfer");
+            // TODO: Implement token transfer
+            process_transfer(accounts, amount)
+        }
+        TokenInstruction::Approve { amount } => {
+            msg!("Instruction: Approve");
+            // TODO: Implement delegate approval
+            process_approve(accounts, amount)
+        }
+        TokenInstruction::Burn { amount } => {
+            msg!("Instruction: Burn");
+            // TODO: Implement token burning
+            process_burn(accounts, amount)
+        }
+        TokenInstruction::FreezeAccount => {
+            msg!("Instruction: Freeze Account");
+            // TODO: Implement account freezing
+            process_freeze_account(accounts)
+        }
+    }
+}
+
+fn process_initialize_mint(accounts: &[AccountInfo], decimals: u8) -> ProgramResult {
+    // TODO: Implement mint initialization logic
+    // 1. Load mint account and authority
+    // 2. Validate account size and permissions
+    // 3. Initialize mint with decimals and authorities
+    // 4. Save mint data to account
     
-    // TODO: Parse amount from instruction data
-    let amount = u64::from_le_bytes(
-        instruction_data[0..8].try_into().unwrap()
-    );
-    
-    msg!("Minting {} tokens", amount);
-    
-    // TODO: Create mint instruction
-    /*
-    let mint_ix = token_instruction::mint_to(
-        token_program.key,
-        mint_account.key,
-        token_account.key,
-        authority.key,
-        &[],
-        amount,
-    )?;
-    
-    invoke(
-        &mint_ix,
-        &[
-            mint_account.clone(),
-            token_account.clone(),
-            authority.clone(),
-            token_program.clone(),
-        ],
-    )?;
-    */
-    
-    msg!("Tokens minted successfully");
+    msg!("Mint initialized with {} decimals", decimals);
     Ok(())
 }
 
+fn process_mint_to(accounts: &[AccountInfo], amount: u64) -> ProgramResult {
+    // TODO: Implement token minting logic
+    // 1. Load mint and destination accounts
+    // 2. Validate mint authority signature
+    // 3. Check for overflow conditions
+    // 4. Update mint supply and account balance
+    // 5. Save updated data
+    
+    msg!("Minted {} tokens to account", amount);
+    Ok(())
+}
+
+fn process_transfer(accounts: &[AccountInfo], amount: u64) -> ProgramResult {
+    // TODO: Implement token transfer logic
+    // 1. Load source and destination accounts
+    // 2. Validate authority (owner or delegate)
+    // 3. Check sufficient balance
+    // 4. Handle delegate spending limits
+    // 5. Update account balances
+    
+    msg!("Transferred {} tokens", amount);
+    Ok(())
+}
+
+// TODO: Complete remaining functions:
+// - process_initialize_account
+// - process_approve  
+// - process_burn
+// - process_freeze_account
+
 use arch_program::account::next_account_info;`,
+    tests: `// ============================================================================
+// TOKEN OPERATIONS INTEGRATION TESTS - Interactive Learning
+// ============================================================================
+// Complete the TODO items to make tests pass and learn by doing!
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use arch_sdk::{build_and_sign_transaction, generate_new_keypair, ArchRpcClient};
+    use arch_test_sdk::{
+        constants::{BITCOIN_NETWORK, NODE1_ADDRESS},
+        helper::{create_and_fund_account_with_faucet, read_account_info, send_transactions_and_wait},
+    };
+
+    #[test]
+    fn test_initialize_mint() {
+        // TODO: Generate keypairs for authority and mint
+        // TODO: Create mint account with proper size
+        // TODO: Build initialize mint instruction
+        // TODO: Send transaction and verify mint creation
+        
+        println!("✅ Mint initialized successfully!");
+    }
+
+    #[test] 
+    fn test_mint_tokens() {
+        // TODO: Set up mint and token account
+        // TODO: Create mint instruction with amount
+        // TODO: Send transaction and verify tokens minted
+        // TODO: Check both account balance and total supply
+        
+        println!("✅ Minted tokens successfully!");
+    }
+
+    #[test]
+    fn test_transfer_tokens() {
+        // TODO: Set up two users with token accounts
+        // TODO: Mint tokens to sender
+        // TODO: Transfer tokens between accounts
+        // TODO: Verify balances updated correctly
+        
+        println!("✅ Transferred tokens successfully!");
+    }
+
+    #[test]
+    fn test_approve_and_burn() {
+        // TODO: Set up accounts and mint tokens
+        // TODO: Approve delegate to spend tokens
+        // TODO: Burn tokens to reduce supply
+        // TODO: Verify approval and burn operations
+        
+        println!("✅ Approval and burn operations completed!");
+    }
+    
+    // Advanced challenges:
+    // TODO: Implement multisig token operations
+    // TODO: Add associated token account creation  
+    // TODO: Create a token swap function
+    // TODO: Build a simple DEX using these primitives!
+}`,
   },
   {
     id: 7,
